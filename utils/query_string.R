@@ -3,10 +3,10 @@ GetQueryList <- function(queryString) {
     strsplit(., split = '&') %>%
     unlist %>%
     purrr::map(., function(x) {
-      res <- unlist(strsplit(x, split = '='))
-      a <- list()
-      a[[ res[1] ]] = res[2]
-      return(a)
+      splitedQueryString <- unlist(strsplit(x, split = '='))
+      res <- list()
+      res[[ splitedQueryString[1] ]] = splitedQueryString[2]
+      return(res)
     }) %>%
     flatten
   
