@@ -3,6 +3,8 @@ library('rvest')
 library('stringr')
 library('data.table')
 
+if(!exists('GetQueryString', mode = 'function')) source('./utils/query_string.R')
+
 TARGET_PAGE_URL = 'https://finance.naver.com/sise/sise_market_sum.nhn'
 
 .GetTargetPageHtml <- function(url) {
@@ -56,13 +58,16 @@ TARGET_PAGE_URL = 'https://finance.naver.com/sise/sise_market_sum.nhn'
 
 .GenerateTickerData <- function(code) {
   tables <- list()
-  url <- paste0(TARGET_PAGE_URL, '?sosok=', code)
+  url <- paste0(TARGET_PAGE_URL, GetQueryString(list(sosok = code)))
   pageHtml <- .GetTargetPageHtml(url)
 
   lastPage <- .GetLastPage(pageHtml)
   
   for (i in 1:lastPage) {
-    targetPageUrl <- paste0(url, '&page=', i)
+    targetPageUrl <- paste0(TARGET_PAGE_URL, GetQueryString(list(
+      sosok = code,
+      page = i
+    )))
     targetPageHtml <- .GetTargetPageHtml(targetPageUrl)
     tables[[i]] <- .MergeTickerIntoTable(targetPageHtml)
     Sys.sleep(0.5)
