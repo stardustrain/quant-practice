@@ -3,7 +3,7 @@ library(rvest)
 library(readr)
 library(stringr)
 
-source('./constants.R')
+source('./utils/constants.R')
 
 .GetOTP <- function(otpRequestBody) {
   otp <- POST(GENERATE_OTP_URL, query = otpRequestBody) %>%
@@ -31,26 +31,39 @@ source('./constants.R')
   read.csv(filepath, row.names = 1, stringsAsFactors = FALSE)
 }
 
-.CompareColumns <- function() {
-  sector <- .ReadCSV(paste0(FILE_PATH, 'krx_sector.csv'))
-  ind <- .ReadCSV(paste0(FILE_PATH, 'krx_ind.csv'))
-
+.CompareColumns <- function(sector, ind) {
   ticker <- merge(sector, ind,
                   by = intersect(names(sector), names(ind)),
                   all = FALSE)
-  orderedTicker <- ticker[order(-ticker['시가총액.원.']), ]
-  ticker[grepl('스팩', ticker[, '종목명']), '종목명']
+
+  ticker <- ticker[order(-ticker['시가총액.원.']), ]
+  ticker <- ticker[!grepl('스팩', ticker[, '종목명']), ]
+  ticker <- ticker[str_sub(ticker[, '종목코드'], -1, -1) == 0, ]
+
+  return(ticker)
 }
 
 RequestMarketData <- function(otpRequestBody, filename) {
   tryCatch({
     data <- purrr::compose(
       .GetOTP,
-      .GetData
-      , .dir='forward')(otpRequestBody)
+      .GetData,
+    .dir='forward')(otpRequestBody)
     .CreateCSV(data, filename)
     },
     error = function(e) print(e),
     finally = print('done')
   )
+}
+
+CreateTickerTable <- function() {
+  tryCatch({
+    sector <- .ReadCSV(paste0(FILE_PATH, 'krx_sector.csv'))
+    ind <- .ReadCSV(paste0(FILE_PATH, 'krx_ind.csv'))
+    
+    ticker <- .CompareColumns(sector, ind)
+    rownames(ticker) = NULL
+
+    .CreateCSV(ticker, 'ticker')
+  }, error = function(e) print(e))
 }

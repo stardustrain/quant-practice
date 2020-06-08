@@ -1,3 +1,4 @@
+# 연습용 naver 주식 crawler
 library('httr')
 library('rvest')
 library('stringr')

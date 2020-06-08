@@ -1,8 +1,10 @@
-if(!exists('GetMarketData', mode = 'function')) source('./marketdata.R')
-if(!exists('GetIndividualData', mode = 'function')) source('./individualIndicator.R')
+if(!exists('GetMarketData', mode = 'function')) source('./crawler/marketdata.R')
+if(!exists('GetIndividualData', mode = 'function')) source('./crawler/individualIndicator.R')
+if(!exists('CreateTickerTable', mode = 'function')) source('././crawler/crawler_helper.R')
 
 GetMarketData()
 GetIndividualData()
+CreateTickerTable()
 
 url = 'https://finance.naver.com/news/news_list.nhn?mode=LSS2D&section_id=101&section_id2=258'
 data = GET(url)

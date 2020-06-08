@@ -1,5 +1,5 @@
-source('./constants.R')
-if (!exists('RequestMarketData', mode='function')) source('./utils/csv_creator.R')
+source('./utils/constants.R')
+if (!exists('RequestMarketData', mode='function')) source('./crawler/crawler_helper.R')
 
 GetIndividualData <- function() {
   otpRequestBody <- list(
